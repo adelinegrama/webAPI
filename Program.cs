@@ -2,10 +2,10 @@ using Microsoft.EntityFrameworkCore;
 using Shop.Data;
 
 var builder = WebApplication.CreateBuilder(args);
-var connectingString = builder.Configuration.GetConnectionString("ShopContext") ??
+var connectionString = builder.Configuration.GetConnectionString("ShopContext") ??
     throw new InvalidOperationException("Connection string 'ShopContext' not found");
 builder.Services.AddDbContext<ShopContext>(options =>
-    options.UseSqlServer(connectingString));
+    options.UseSqlServer(connectionString));
 
 // Add services to the container.
 
