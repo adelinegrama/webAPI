@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Shop.Data;
 using Shop.Models;
+using Shop.DTOs;
+using AutoMapper;
 
 namespace Shop.Controllers
 {
@@ -11,73 +13,66 @@ namespace Shop.Controllers
     public class ProductController : ControllerBase
     {
         private readonly ShopContext _shopContext;
+        private readonly IMapper _mapper;
 
-        public ProductController(ShopContext shopContext)
+        public ProductController(ShopContext shopContext, IMapper mapper)
         {
             _shopContext = shopContext;
+            _mapper = mapper;
         }
 
         // Create
         [HttpPost]
-        public async Task<ActionResult<Product>> AddProduct(Product product)
+        public async Task<ActionResult<ProductDto>> AddProduct([FromBody] CreateProductDto createDto)
         {
+            var product = _mapper.Map<Product>(createDto);
             _shopContext.Products.Add(product);
             await _shopContext.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetProduct), new { id = product.Id, name = product.Name, 
-            brand = product.Brand, price = product.Price}, product);
+            var productDto = _mapper.Map<ProductDto>(product);
+            return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, productDto);
         }
 
-        // Read
+        // Read all
         [HttpGet]
-        public async Task<IActionResult> GetProducts()
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProducts()
         {
             var products = await _shopContext.Products.ToListAsync();
-            return Ok(products);
+            return Ok(_mapper.Map<IEnumerable<ProductDto>>(products));
         }
 
+        // Read by id
         [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> GetProduct(int id)
+        public async Task<ActionResult<ProductDto>> GetProduct(int id)
         {
             var product = await _shopContext.Products.FindAsync(id);
-
             if (product == null)
-            {
                 return NotFound();
-            }
 
-            return product;
+            return _mapper.Map<ProductDto>(product);
         }
 
         // Update
         [HttpPut("{id}")]
-        public async Task<ActionResult<Product>> UpdateProduct(int id, [FromBody] Product updatedProduct)
+        public async Task<ActionResult<ProductDto>> UpdateProduct(int id, [FromBody] UpdateProductDto updateDto)
         {
             var product = await _shopContext.Products.FindAsync(id);
-
             if (product == null)
-            {
                 return NotFound();
-            }
 
-            product.Name = updatedProduct.Name;
-            product.Brand = updatedProduct.Brand;
-            product.Price = updatedProduct.Price;
-
+            _mapper.Map(updateDto, product);
             await _shopContext.SaveChangesAsync();
 
-            return Ok(product);
+            return Ok(_mapper.Map<ProductDto>(product));
         }
 
+        // Delete
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
             var product = await _shopContext.Products.FindAsync(id);
-
             if (product == null)
-            {
                 return NotFound("Product not found.");
-            }
 
             _shopContext.Products.Remove(product);
             await _shopContext.SaveChangesAsync();

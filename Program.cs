@@ -1,11 +1,15 @@
 using Microsoft.EntityFrameworkCore;
 using Shop.Data;
+using Shop.Profiles;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("ShopContext") ??
     throw new InvalidOperationException("Connection string 'ShopContext' not found");
 builder.Services.AddDbContext<ShopContext>(options =>
     options.UseSqlServer(connectionString));
+
+// AutoMapper
+builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
 // Add services to the container.
 
