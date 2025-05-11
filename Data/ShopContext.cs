@@ -17,22 +17,20 @@ public class ShopContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
-        // Составной ключ для OrderItem
-        builder.Entity<OrderItem>()
-            .HasKey(oi => new { oi.Id, oi.ProductId });
+       base.OnModelCreating(builder);
 
-        // Связь Order 1:N OrderItem
-        builder.Entity<OrderItem>()
-            .HasOne(oi => oi.Order)
-            .WithMany(o => o.Items)
-            .HasForeignKey(oi => oi.Id)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        // Связь Product 1:N OrderItem
+        // связь OrderItem и Product
         builder.Entity<OrderItem>()
             .HasOne(oi => oi.Product)
             .WithMany(p => p.OrderItems)
             .HasForeignKey(oi => oi.ProductId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // связь OrderItem и Order
+        builder.Entity<OrderItem>()
+            .HasOne(oi => oi.Order)
+            .WithMany(o => o.Items)
+            .HasForeignKey(oi => oi.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
