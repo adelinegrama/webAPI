@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Shop.Data;
 using Shop.Profiles;
+using Shop.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("ShopContext") ??
@@ -12,6 +13,8 @@ builder.Services.AddDbContext<ShopContext>(options =>
 builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
 // Add services to the container.
+
+builder.Services.AddScoped<IProductService, ProductService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
