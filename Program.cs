@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Shop.Data;
 using Shop.Profiles;
 using Shop.Services;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("ShopContext") ??
@@ -13,10 +14,17 @@ builder.Services.AddDbContext<ShopContext>(options =>
 builder.Services.AddAutoMapper(typeof(MappingProfile).Assembly);
 
 // Add services to the container.
-
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 builder.Services.AddControllers();
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
